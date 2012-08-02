@@ -1,6 +1,7 @@
 #include <QtCore/QCoreApplication>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+
 #include <QDebug>
 
 #define MAX_AZTEC_RECT 500
