@@ -18,6 +18,7 @@ public:
 
 private:
     double m_width;
+
     double m_height;
 
     CvCapture* m_capture;

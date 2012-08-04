@@ -17,7 +17,7 @@ SOURCES += src/main.cpp \
     src/display.cpp \
     src/filter.cpp \
     src/simplefilter.cpp
-HEADERS += source.h \
+HEADERS += src/source.h \
     src/camera.h \
     src/window.h \
     src/display.h \
