@@ -11,15 +11,15 @@ LIBS += -L/usr/local/lib \
     -lopencv_core \
     -lopencv_highgui \
     -lopencv_imgproc
-SOURCES += main.cpp \
-    camera.cpp \
-    window.cpp \
-    display.cpp \
-    filter.cpp \
-    simplefilter.cpp
+SOURCES += src/main.cpp \
+    src/camera.cpp \
+    src/window.cpp \
+    src/display.cpp \
+    src/filter.cpp \
+    src/simplefilter.cpp
 HEADERS += source.h \
-    camera.h \
-    window.h \
-    display.h \
-    filter.h \
-    simplefilter.h
+    src/camera.h \
+    src/window.h \
+    src/display.h \
+    src/filter.h \
+    src/simplefilter.h
