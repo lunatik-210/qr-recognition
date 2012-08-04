@@ -12,22 +12,22 @@ IplImage* SimpleFilter::process( IplImage* frame )
     cvThreshold( gray, gray, 100, 255, CV_THRESH_BINARY );
 
     //создание хранилище памяти
-    CvMemStorage* storage=cvCreateMemStorage(0);
+    CvMemStorage* storage=cvCreateMemStorage( 0 );
 
     CvSeq* firstContour = NULL;
     cvFindContours( gray, storage, &firstContour, sizeof( CvContour ), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, cvPoint( 0, 0 ) );
 
-    CvSeq* c_temp=0;
     QVector<CvRect> rects;
 
-    for(CvSeq* seq0 = firstContour; seq0!=0; seq0 = seq0->h_next)
+    for( CvSeq* seq0 = firstContour; seq0!=0; seq0 = seq0->h_next )
     {
-        CvRect rect = cvBoundingRect(seq0);
-        CvBox2D box = cvMinAreaRect2(seq0);
+        CvRect rect = cvBoundingRect( seq0 );
+        CvBox2D box = cvMinAreaRect2( seq0 );
+        CvSeq* c_temp=0;
         double countourArea = 0.0;
         double i1, i2 = 0.0;
         
-        if (box.size.height<0.1 || box.size.width<0.1 )
+        if( box.size.height < 0.1 || box.size.width < 0.1 )
         {
             i1=0;
         }
@@ -35,13 +35,14 @@ IplImage* SimpleFilter::process( IplImage* frame )
         {
             countourArea = fabs( cvContourArea( seq0 ) );
             i1 = countourArea / (double)( box.size.width * box.size.height );
-            i2 =((box.size.width<box.size.height)?
-               (double)box.size.width/(double)box.size.height:
-               (double)box.size.height/(double)box.size.width);
+            i2 =( ( box.size.width < box.size.height ) ?
+               (double) box.size.width / (double) box.size.height:
+               (double) box.size.height / (double) box.size.width );
         }
-        if( i1>=0.65 && i2>=0.65 && abs( box.size.width * box.size.height - countourArea ) < countourArea * 0.3 ) {
+        if( i1>=0.65 && i2>=0.65 && abs( box.size.width * box.size.height - countourArea ) < countourArea * 0.3 )
+        {
             c_temp=seq0;
-            rects.push_back(rect);
+            rects.push_back( rect );
         }
         else
         {
@@ -52,7 +53,7 @@ IplImage* SimpleFilter::process( IplImage* frame )
         }
     }
 
-    for (int indx = 0; indx < rects.size(); ++indx)
+    for( int indx = 0; indx < rects.size(); ++indx )
     {
         CvPoint p1, p2;
         p1.x=rects[indx].x;
