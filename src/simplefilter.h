@@ -14,7 +14,7 @@ public:
     virtual IplImage* process( IplImage* frame );
 
 protected:
-    QVector<CvRect> collectRects( CvSeq* current );
+    QVector<CvSeq*> collectContours( CvSeq* current );
 
     bool isValidContour( CvSeq* conture, const int requiredDepth = 2 );
 

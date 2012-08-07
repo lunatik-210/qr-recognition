@@ -14,18 +14,19 @@ IplImage* SimpleFilter::process( IplImage* frame )
     //создание хранилище памяти
     CvMemStorage* storage = cvCreateMemStorage( 0 );
 
-    CvSeq* firstContour = NULL;
-    cvFindContours( gray, storage, &firstContour, sizeof( CvContour ), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cvPoint( 0, 0 ) );
+    CvSeq* root = NULL;
+    cvFindContours( gray, storage, &root, sizeof( CvContour ), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cvPoint( 0, 0 ) );
 
-    QVector<CvRect> rects = collectRects( firstContour );
+    QVector<CvSeq*> contours = collectContours( root );
 
-    for( int indx = 0; indx < rects.size(); ++indx )
+    for( int indx = 0; indx < contours.size(); ++indx )
     {
+        CvRect rect = cvBoundingRect( contours[indx] );
         CvPoint p1, p2;
-        p1.x = rects[indx].x;
-        p1.y = rects[indx].y;
-        p2.x = rects[indx].x+rects[indx].width;
-        p2.y = rects[indx].y+rects[indx].height;
+        p1.x = rect.x;
+        p1.y = rect.y;
+        p2.x = rect.x+rect.width;
+        p2.y = rect.y+rect.height;
         cvRectangle( frame, p1, p2, CV_RGB(30,216,30), 1, 8, 0 );
     }
 
@@ -50,18 +51,17 @@ bool SimpleFilter::isValidContour( CvSeq* contour, const int requiredDepth /* = 
     return true;
 }
 
-QVector<CvRect> SimpleFilter::collectRects( CvSeq* contour )
+QVector<CvSeq*> SimpleFilter::collectContours( CvSeq* contour )
 {
-    QVector<CvRect> rects;
+    QVector<CvSeq*> contours;
 
     if( !contour )
     {
-        return rects;
+        return contours;
     }
 
     if( isValidContour( contour ) && checkQRPattern( contour ) )
     {
-        CvRect rect = cvBoundingRect( contour );
         CvBox2D box = cvMinAreaRect2( contour );
 
         double countourArea = 0.0;
@@ -82,20 +82,20 @@ QVector<CvRect> SimpleFilter::collectRects( CvSeq* contour )
 
         if( i1>=0.65 && i2>=0.65 && abs( box.size.width * box.size.height - countourArea ) < countourArea * 0.3 )
         {
-            rects.push_back( rect );
+            contours.push_back( contour );
         }
     }
 
-    QVector<CvRect> rects1 = collectRects( contour->h_next );
-    QVector<CvRect> rects2 = collectRects( contour->v_next );
+    QVector<CvSeq*> contours1 = collectContours( contour->h_next );
+    QVector<CvSeq*> contours2 = collectContours( contour->v_next );
 
-    foreach( CvRect r, rects1 )
-        rects.push_back(r);
+    foreach( CvSeq* c, contours1 )
+        contours.push_back(c);
 
-    foreach( CvRect r, rects2 )
-        rects.push_back(r);
+    foreach( CvSeq* c, contours2 )
+        contours.push_back(c);
 
-    return rects;
+    return contours;
 }
 
 bool SimpleFilter::checkQRPattern( CvSeq* contour )
