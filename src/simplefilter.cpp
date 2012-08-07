@@ -35,13 +35,14 @@ IplImage* SimpleFilter::process( IplImage* frame )
     return frame;
 }
 
-bool SimpleFilter::isValidContour( CvSeq* contour, const int requiredDepth /* = 2 */ )
+bool SimpleFilter::checkContourDepth( CvSeq* contour, const int requiredDepth /* = 2 */ )
 {
     CvSeq* seq = contour;
     int c = 0;
     while( ( seq = seq->v_next ) != NULL )
     {
-        ++c;
+        if( ++c > requiredDepth )
+            return false;
     }
 
     if( c != requiredDepth )
@@ -60,7 +61,7 @@ QVector<CvSeq*> SimpleFilter::collectContours( CvSeq* contour )
         return contours;
     }
 
-    if( isValidContour( contour ) && checkQRPattern( contour ) )
+    if( checkQRPattern( contour ) )
     {
         CvBox2D box = cvMinAreaRect2( contour );
 
@@ -100,6 +101,9 @@ QVector<CvSeq*> SimpleFilter::collectContours( CvSeq* contour )
 
 bool SimpleFilter::checkQRPattern( CvSeq* contour )
 {
+    if( !checkContourDepth( contour ) )
+        return false;
+
     CvSeq* seq = contour;
     CvBox2D box1 = cvMinAreaRect2( seq );
     float area1 = ( box1.size.width * box1.size.height );

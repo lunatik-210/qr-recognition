@@ -16,7 +16,7 @@ public:
 protected:
     QVector<CvSeq*> collectContours( CvSeq* current );
 
-    bool isValidContour( CvSeq* conture, const int requiredDepth = 2 );
+    bool checkContourDepth( CvSeq* conture, const int requiredDepth = 2 );
 
     bool checkQRPattern( CvSeq* contour );
 
