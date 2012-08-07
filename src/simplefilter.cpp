@@ -62,7 +62,7 @@ QVector<CvSeq*> SimpleFilter::collectContours( CvSeq* contour )
         return contours;
     }
 
-    if( checkQRPattern( contour, QR_PATTERN_ERROR ) )
+    if( isQRMarker( contour, QR_MARKER_ERROR ) )
     {
         CvBox2D box = cvMinAreaRect2( contour );
 
@@ -102,7 +102,7 @@ QVector<CvSeq*> SimpleFilter::collectContours( CvSeq* contour )
     return contours;
 }
 
-bool SimpleFilter::checkQRPattern( CvSeq* contour, float error  )
+bool SimpleFilter::isQRMarker( CvSeq* contour, float error  )
 {
     if( !checkContourDepth( contour ) )
         return false;
@@ -122,7 +122,7 @@ bool SimpleFilter::checkQRPattern( CvSeq* contour, float error  )
     float k1 = area1/area2;
     float k2 = area2/area3;
 
-    if( abs( k1 - QR_PATTERN_RATIO_1 ) < error && abs( k2 - QR_PATTERN_RATIO_2 ) < error )
+    if( abs( k1 - QR_MARKER_RATIO_1 ) < error && abs( k2 - QR_MARKER_RATIO_2 ) < error )
         return true;
 
     return false;

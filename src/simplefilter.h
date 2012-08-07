@@ -18,7 +18,7 @@ protected:
 
     bool checkContourDepth( CvSeq* conture, const int requiredDepth = 2 );
 
-    bool checkQRPattern( CvSeq* contour, float error );
+    bool isQRMarker( CvSeq* contour, float error );
 
 };
 
