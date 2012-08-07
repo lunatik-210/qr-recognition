@@ -3,6 +3,8 @@
 
 #include "filter.h"
 
+#include <QVector>
+
 class SimpleFilter : public Filter
 {
 public:
@@ -12,9 +14,9 @@ public:
     virtual IplImage* process( IplImage* frame );
 
 protected:
-    CvSeq* nextSeq( CvSeq* current );
+    QVector<CvRect> collectRects( CvSeq* current );
 
-    bool isValidContour( CvSeq* conture );
+    bool isValidContour( CvSeq* conture, const int requiredDepth = 2 );
 
 };
 

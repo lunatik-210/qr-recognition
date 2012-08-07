@@ -17,38 +17,7 @@ IplImage* SimpleFilter::process( IplImage* frame )
     CvSeq* firstContour = NULL;
     cvFindContours( gray, storage, &firstContour, sizeof( CvContour ), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cvPoint( 0, 0 ) );
 
-    QVector<CvRect> rects;
-
-    while( ( firstContour = nextSeq( firstContour ) ) != NULL )
-    {
-        if( !isValidContour( firstContour ) )
-        {
-            continue;
-        }
-
-        CvRect rect = cvBoundingRect( firstContour );
-        CvBox2D box = cvMinAreaRect2( firstContour );
-        double countourArea = 0.0;
-        double i1, i2 = 0.0;
-
-        if( box.size.height < 0.1 || box.size.width < 0.1 )
-        {
-            i1=0;
-        }
-        else
-        {
-            countourArea = fabs( cvContourArea( firstContour ) );
-            i1 = countourArea / (double)( box.size.width * box.size.height );
-            i2 =( ( box.size.width < box.size.height ) ?
-               (double) box.size.width / (double) box.size.height:
-               (double) box.size.height / (double) box.size.width );
-        }
-        if( i1>=0.65 && i2>=0.65 && abs( box.size.width * box.size.height - countourArea ) < countourArea * 0.3 )
-        {
-            rects.push_back( rect );
-        }
-    }
-
+    QVector<CvRect> rects = collectRects( firstContour );
 
     for( int indx = 0; indx < rects.size(); ++indx )
     {
@@ -65,7 +34,7 @@ IplImage* SimpleFilter::process( IplImage* frame )
     return frame;
 }
 
-bool SimpleFilter::isValidContour( CvSeq* contour )
+bool SimpleFilter::isValidContour( CvSeq* contour, const int requiredDepth /* = 2 */ )
 {
     CvSeq* seq = contour;
     int c = 0;
@@ -74,31 +43,57 @@ bool SimpleFilter::isValidContour( CvSeq* contour )
         ++c;
     }
 
-    if( c != 2 )
+    if( c != requiredDepth )
     {
         return false;
     }
     return true;
 }
 
-CvSeq* SimpleFilter::nextSeq( CvSeq* current )
+QVector<CvRect> SimpleFilter::collectRects( CvSeq* contour )
 {
-    if( !current )
+    QVector<CvRect> rects;
+
+    if( !contour )
     {
-        return NULL;
+        return rects;
     }
 
-    CvSeq* seq = NULL;
+    if( isValidContour( contour ) )
+    {
+        CvRect rect = cvBoundingRect( contour );
+        CvBox2D box = cvMinAreaRect2( contour );
 
-    seq = current->h_next;
+        double countourArea = 0.0;
+        double i1, i2 = 0.0;
 
-    if( seq != 0 )
-        return seq;
+        if( box.size.height < 0.1 || box.size.width < 0.1 )
+        {
+            i1=0;
+        }
+        else
+        {
+            countourArea = fabs( cvContourArea( contour ) );
+            i1 = countourArea / (double)( box.size.width * box.size.height );
+            i2 =( ( box.size.width < box.size.height ) ?
+               (double) box.size.width / (double) box.size.height:
+               (double) box.size.height / (double) box.size.width );
+        }
 
-    seq = current->v_next;
+        if( i1>=0.65 && i2>=0.65 && abs( box.size.width * box.size.height - countourArea ) < countourArea * 0.3 )
+        {
+            rects.push_back( rect );
+        }
+    }
 
-    if( seq != 0 )
-        return seq;
+    QVector<CvRect> rects1 = collectRects( contour->h_next );
+    QVector<CvRect> rects2 = collectRects( contour->v_next );
 
-    return NULL;
+    foreach( CvRect r, rects1 )
+        rects.push_back(r);
+
+    foreach( CvRect r, rects2 )
+        rects.push_back(r);
+
+    return rects;
 }
