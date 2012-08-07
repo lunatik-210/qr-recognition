@@ -22,4 +22,5 @@ HEADERS += src/source.h \
     src/window.h \
     src/display.h \
     src/filter.h \
-    src/simplefilter.h
+    src/simplefilter.h \
+    src/constants.h
