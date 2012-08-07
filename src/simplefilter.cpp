@@ -69,18 +69,11 @@ QVector<CvSeq*> SimpleFilter::collectContours( CvSeq* contour )
         double countourArea = 0.0;
         double i1, i2 = 0.0;
 
-        if( box.size.height < 0.1 || box.size.width < 0.1 )
-        {
-            i1=0;
-        }
-        else
-        {
-            countourArea = fabs( cvContourArea( contour ) );
-            i1 = countourArea / (double)( box.size.width * box.size.height );
-            i2 =( ( box.size.width < box.size.height ) ?
-               (double) box.size.width / (double) box.size.height:
-               (double) box.size.height / (double) box.size.width );
-        }
+        countourArea = fabs( cvContourArea( contour ) );
+        i1 = countourArea / (double)( box.size.width * box.size.height );
+        i2 =( ( box.size.width < box.size.height ) ?
+           (double) box.size.width / (double) box.size.height:
+           (double) box.size.height / (double) box.size.width );
 
         if( i1 >= MIN_CONTOURS_AREA_RATIO &&
             i2 >= MIN_CONTOURS_AREA_RATIO &&
