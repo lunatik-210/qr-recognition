@@ -59,7 +59,7 @@ QVector<CvRect> SimpleFilter::collectRects( CvSeq* contour )
         return rects;
     }
 
-    if( isValidContour( contour ) )
+    if( isValidContour( contour ) && checkQRPattern( contour ) )
     {
         CvRect rect = cvBoundingRect( contour );
         CvBox2D box = cvMinAreaRect2( contour );
@@ -96,4 +96,36 @@ QVector<CvRect> SimpleFilter::collectRects( CvSeq* contour )
         rects.push_back(r);
 
     return rects;
+}
+
+bool SimpleFilter::checkQRPattern( CvSeq* contour )
+{
+    CvSeq* seq = contour;
+    CvBox2D box1 = cvMinAreaRect2( seq );
+    float area1 = ( box1.size.width * box1.size.height );
+
+    seq = seq->v_next;
+    CvBox2D box2 = cvMinAreaRect2( seq );
+    float area2 = ( box2.size.width * box2.size.height );
+
+    seq = seq->v_next;
+    CvBox2D box3 = cvMinAreaRect2( seq );
+    float area3 = ( box3.size.width * box3.size.height );
+
+    float q1 = area1/area2;
+    float q2 = area2/area3;
+
+    /*****************
+    // 7*7 = 49
+    // 5*5 = 25
+    // 3*3 = 9
+    //
+    // 49 / 25 ~= 1.96
+    // 25 / 9 ~= 2.78
+    ******************/
+
+    if( ( 1.70 < q1 && q1 < 2.2 ) && ( 2.5 < q2 && q2 < 3.0 ) )
+        return true;
+
+    return false;
 }

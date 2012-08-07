@@ -18,6 +18,8 @@ protected:
 
     bool isValidContour( CvSeq* conture, const int requiredDepth = 2 );
 
+    bool checkQRPattern( CvSeq* contour );
+
 };
 
 #endif // SIMPLEFILTER_H
