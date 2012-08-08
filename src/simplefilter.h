@@ -4,6 +4,7 @@
 #include "filter.h"
 
 #include <QVector>
+
 struct vertex
 {
     CvPoint p1;
@@ -19,7 +20,7 @@ class SimpleFilter : public Filter
 {
 public:
     SimpleFilter( Source* source )
-        : Filter(source) {er1=0.1;er2=0.2;}
+        : Filter(source), er1(0.1), er2(0.2) {}
 
     virtual IplImage* process( IplImage* frame );
 
@@ -32,10 +33,12 @@ protected:
 
     CvPoint getCenterPoint(CvSeq* contour);
 
-    double  getLenghtLine(CvPoint p1, CvPoint p2);
-    IplImage*   findQrCode(const QVector<CvSeq*>& contours, IplImage* frame, float errorAngle, float errorSide);
+    inline double getLenghtLine(CvPoint p1, CvPoint p2);
 
-    float er1,er2;
+    IplImage* findQrCode( const QVector<CvSeq*>& contours, IplImage* frame, float errorAngle, float errorSide );
+
+private:
+    float er1, er2;
 
 };
 

@@ -3,9 +3,11 @@
 
 #include <QVector>
 #include <QDebug>
+
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <opencv/cvaux.h>
+
 IplImage* SimpleFilter::process( IplImage* frame )
 {
     IplImage* gray = 0;
@@ -161,8 +163,7 @@ CvPoint SimpleFilter::getCenterPoint(CvSeq *contour)
 
 double SimpleFilter::getLenghtLine(CvPoint p1, CvPoint p2)
 {
-    double lenght=sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2));
-    return lenght;
+    return sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2));
 }
 
 
@@ -170,10 +171,15 @@ IplImage*  SimpleFilter::findQrCode(const QVector<CvSeq *> &contours, IplImage* 
 {
 
     QVector <vertex> qrCode;
-    if(contours.size()<3)return frame;
-    for(int indx=0; indx<contours.size()-2;indx++)
-        for(int indx2=indx+1; indx2<contours.size()-1;indx2++)
-            for(int indx3=indx2+1; indx3<contours.size();indx3++)
+
+    if(contours.size()<3)
+        return frame;
+
+    for( int indx=0; indx<contours.size()-2; indx++ )
+    {
+        for( int indx2=indx+1; indx2<contours.size()-1; indx2++ )
+        {
+            for( int indx3=indx2+1; indx3<contours.size(); indx3++ )
             {
                 bool find=false;
                 CvPoint cp1,cp2,cp3;
@@ -190,32 +196,27 @@ IplImage*  SimpleFilter::findQrCode(const QVector<CvSeq *> &contours, IplImage* 
                 lenght2=pow(lenght2,2);
                 lenght3=pow(lenght3,2);
 
-                if(lenght1>lenght2 &&   lenght1>lenght3)
+                if( lenght1 > lenght2 && lenght1 > lenght3 )
                 {
-                    if(abs(lenght1-lenght2-lenght3)<lenght2*errorAngle && abs(lenght2-lenght3)<lenght2*errorSide)
+                    if( abs( lenght1-lenght2-lenght3 ) < lenght2 * errorAngle && abs( lenght2 - lenght3 ) < lenght2 * errorSide )
                         find=true;
                 }
                 else
                 {
-                    if(lenght2>lenght1 &&   lenght2>lenght3)
+                    if( lenght2 > lenght1 && lenght2 > lenght3 )
                     {
-                        if(abs(lenght2-lenght1-lenght3)<lenght1*errorAngle && abs(lenght1-lenght3)<lenght1*errorSide)
+                        if( abs( lenght2 - lenght1 - lenght3 ) < lenght1 * errorAngle && abs( lenght1 - lenght3 ) < lenght1 * errorSide )
                             find=true;
                     }
                     else
                     {
-                        if(lenght3>lenght1 &&   lenght3>lenght1)
+                        if( lenght3 > lenght1 && lenght3 > lenght1 )
                         {
-                            if(abs(lenght3-lenght1-lenght2)<lenght1*errorAngle && abs(lenght2-lenght1)<lenght2*errorSide)
+                            if( abs( lenght3-lenght1-lenght2 ) < lenght1 * errorAngle && abs( lenght2-lenght1 )< lenght2 * errorSide )
                                 find=true;
                         }
                     }
-
-
                 }
-
-                //qDebug()<<lenght1<<" "<<lenght2<<" "<<lenght3;
-
 
                 if(find)
                 {
@@ -232,14 +233,17 @@ IplImage*  SimpleFilter::findQrCode(const QVector<CvSeq *> &contours, IplImage* 
                 }
 
             }
+        }
+    }
+
     qDebug()<<qrCode.size();
 
     for(int i=0;i<qrCode.count();i++)
-        {
-        qDebug()<<"POINT: "<<qrCode.count();
-            cvDrawLine(frame,qrCode.at(i).p1,qrCode.at(i).p2,CV_RGB(30,216,30),2,8,0);
-            cvDrawLine(frame,qrCode.at(i).p1,qrCode.at(i).p3,CV_RGB(30,216,30),2,8,0);
-            cvDrawLine(frame,qrCode.at(i).p2,qrCode.at(i).p3,CV_RGB(30,216,30),2,8,0);
-        }
+    {
+    qDebug()<<"POINT: "<<qrCode.count();
+        cvDrawLine(frame,qrCode.at(i).p1,qrCode.at(i).p2,CV_RGB(30,216,30),2,8,0);
+        cvDrawLine(frame,qrCode.at(i).p1,qrCode.at(i).p3,CV_RGB(30,216,30),2,8,0);
+        cvDrawLine(frame,qrCode.at(i).p2,qrCode.at(i).p3,CV_RGB(30,216,30),2,8,0);
+    }
     return frame;
 }
