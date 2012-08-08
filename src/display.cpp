@@ -1,4 +1,5 @@
 #include "display.h"
+#include "constants.h"
 
 #include <opencv/cv.h>
 
@@ -20,8 +21,9 @@ void Display::loop()
 
 void Display::processKeyPressed( const char key )
 {
-    if ( key == 27 )
+    if ( key == KEY_ESC )
     {
         m_isExit = true;
     }
+    m_source->processKeyPressed( key );
 }

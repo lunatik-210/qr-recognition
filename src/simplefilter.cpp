@@ -18,7 +18,6 @@ IplImage* SimpleFilter::process( IplImage* frame )
 
     cvThreshold( gray, gray, 90, 255, CV_THRESH_BINARY );
 
-    //создание хранилище памяти
     CvMemStorage* storage = cvCreateMemStorage( 0 );
 
     CvSeq* root = NULL;
@@ -26,6 +25,51 @@ IplImage* SimpleFilter::process( IplImage* frame )
 
     QVector<CvSeq*> contours = collectContours( root );
 
+    QVector<Vertex> qrCodes = findQrCode( contours );
+
+    drawDebugInfo( frame, qrCodes, contours );
+
+    cvReleaseImage( &gray );
+    cvReleaseMemStorage( &storage );
+    return frame;
+}
+
+void SimpleFilter::processKeyPressed( const char key )
+{
+    switch( key )
+    {
+        case KEY_A:
+            errorAngle -= 0.05;
+            break;
+        case KEY_Q:
+            errorAngle += 0.05;
+            break;
+        case KEY_W:
+            errorSide += 0.05;
+            break;
+        case KEY_S:
+            errorSide -= 0.05;
+            break;
+        default:
+            break;
+    }
+}
+
+void SimpleFilter::drawDebugInfo( IplImage* frame, QVector<Vertex> qrCodes, QVector<CvSeq*> contours )
+{
+    CvPoint g;
+    g.x=30;
+    g.y=30;
+    CvFont sized;
+    cvInitFont(&sized, CV_FONT_HERSHEY_COMPLEX_SMALL, 1.0, 1.0);
+    cvPutText( frame, (QString::number(errorAngle)).toAscii(), g, &sized, CV_RGB( 0, 255, 255 ) );
+
+    g.x=30;
+    g.y=90;
+    cvPutText( frame, (QString::number(errorSide)).toAscii(), g, &sized, CV_RGB( 0, 255, 255 ) );
+
+
+    /////////////////////////////////////////////////////
     for( int indx = 0; indx < contours.size(); ++indx )
     {
         CvRect rect = cvBoundingRect( contours[indx] );
@@ -34,28 +78,19 @@ IplImage* SimpleFilter::process( IplImage* frame )
         p1.y = rect.y;
         p2.x = rect.x+rect.width;
         p2.y = rect.y+rect.height;
-        cvRectangle( frame, p1, p2, CV_RGB(30,216,30), 2, 8, 0 );
+        cvRectangle( frame, p1, p2, CV_RGB( 30, 216, 30 ), 2, 8, 0 );
     }
-    int key=cvWaitKey(1);
-            if(key==97)er2-=0.05;
-            if(key==113)er2+=0.05;
-            if(key==119)er1+=0.05;
-            if(key==115)er1-=0.05;
-            CvPoint g;
-            g.x=30;
-            g.y=30;
-            CvFont sized;
-            cvInitFont(&sized, CV_FONT_HERSHEY_COMPLEX_SMALL, 1.0, 1.0);
-            cvPutText(frame,(QString::number(er2)).toAscii(),g,&sized,CV_RGB(0,255,255));
 
-            g.x=30;
-            g.y=90;
-            cvPutText(frame,(QString::number(er1)).toAscii(),g,&sized,CV_RGB(0,255,255));
-    frame=findQrCode(contours,frame,er2,er1);
+    /////////////////////////////////////////////////////
+    qDebug()<<qrCodes.size();
 
-    cvReleaseImage( &gray );
-    cvReleaseMemStorage( &storage );
-    return frame;
+    for(int i=0;i<qrCodes.count();i++)
+    {
+        qDebug()<<"POINT: "<<qrCodes.count();
+        cvDrawLine( frame, qrCodes.at(i).p1, qrCodes.at(i).p2, CV_RGB(30,216,30), 2, 8, 0 );
+        cvDrawLine( frame, qrCodes.at(i).p1, qrCodes.at(i).p3, CV_RGB(30,216,30), 2, 8, 0 );
+        cvDrawLine( frame, qrCodes.at(i).p2, qrCodes.at(i).p3, CV_RGB(30,216,30), 2, 8, 0 );
+    }
 }
 
 bool SimpleFilter::checkContourDepth( CvSeq* contour, const int requiredDepth /* = 2 */ )
@@ -161,19 +196,12 @@ CvPoint SimpleFilter::getCenterPoint(CvSeq *contour)
     return point;
 }
 
-double SimpleFilter::getLenghtLine(CvPoint p1, CvPoint p2)
+QVector<Vertex> SimpleFilter::findQrCode( const QVector<CvSeq *> &contours )
 {
-    return sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2));
-}
-
-
-IplImage*  SimpleFilter::findQrCode(const QVector<CvSeq *> &contours, IplImage* frame,float errorAngle, float errorSide)
-{
-
-    QVector <vertex> qrCode;
+    QVector<Vertex> qrCodes;
 
     if(contours.size()<3)
-        return frame;
+        return qrCodes;
 
     for( int indx=0; indx<contours.size()-2; indx++ )
     {
@@ -182,68 +210,61 @@ IplImage*  SimpleFilter::findQrCode(const QVector<CvSeq *> &contours, IplImage* 
             for( int indx3=indx2+1; indx3<contours.size(); indx3++ )
             {
                 bool find=false;
+
                 CvPoint cp1,cp2,cp3;
-                cp1=getCenterPoint(contours[indx]);
-                cp2=getCenterPoint(contours[indx2]);
-                cp3=getCenterPoint(contours[indx3]);
+                cp1=getCenterPoint( contours[indx] );
+                cp2=getCenterPoint( contours[indx2] );
+                cp3=getCenterPoint( contours[indx3] );
 
-                double lenght1=0,lenght2=0,lenght3=0;
-                lenght1=getLenghtLine(cp1,cp2);
-                lenght2=getLenghtLine(cp2,cp3);
-                lenght3=getLenghtLine(cp1,cp3);
+                double lenght1 = 0, lenght2 = 0, lenght3 = 0;
+                lenght1=getLenghtLine( cp1, cp2 );
+                lenght2=getLenghtLine( cp2, cp3 );
+                lenght3=getLenghtLine( cp1, cp3 );
 
-                lenght1=pow(lenght1,2);
-                lenght2=pow(lenght2,2);
-                lenght3=pow(lenght3,2);
+                lenght1=pow( lenght1, 2 );
+                lenght2=pow( lenght2, 2 );
+                lenght3=pow( lenght3, 2 );
 
                 if( lenght1 > lenght2 && lenght1 > lenght3 )
                 {
-                    if( abs( lenght1-lenght2-lenght3 ) < lenght2 * errorAngle && abs( lenght2 - lenght3 ) < lenght2 * errorSide )
-                        find=true;
+                    find = isEquilateralTriangle( lenght1, lenght2, lenght3 );
                 }
-                else
+                else if( lenght2 > lenght1 && lenght2 > lenght3 )
                 {
-                    if( lenght2 > lenght1 && lenght2 > lenght3 )
-                    {
-                        if( abs( lenght2 - lenght1 - lenght3 ) < lenght1 * errorAngle && abs( lenght1 - lenght3 ) < lenght1 * errorSide )
-                            find=true;
-                    }
-                    else
-                    {
-                        if( lenght3 > lenght1 && lenght3 > lenght1 )
-                        {
-                            if( abs( lenght3-lenght1-lenght2 ) < lenght1 * errorAngle && abs( lenght2-lenght1 )< lenght2 * errorSide )
-                                find=true;
-                        }
-                    }
+                    find = isEquilateralTriangle( lenght2, lenght1, lenght3 );
                 }
-
-                if(find)
+                else if( lenght3 > lenght1 && lenght3 > lenght1 )
                 {
-                    vertex buf;
-                    buf.con1=contours[indx];
-                    buf.con2=contours[indx2];
-                    buf.con3=contours[indx3];
-
-                    buf.p1=cp1;
-                    buf.p2=cp2;
-                    buf.p3=cp3;
-
-                    qrCode.push_back(buf);
+                    find = isEquilateralTriangle( lenght3, lenght1, lenght2 );
                 }
+
+                if( !find )
+                    return qrCodes;
+
+                Vertex buf;
+                buf.con1 = contours[indx];
+                buf.con2 = contours[indx2];
+                buf.con3 = contours[indx3];
+
+                buf.p1 = cp1;
+                buf.p2 = cp2;
+                buf.p3 = cp3;
+
+                qrCodes.push_back( buf );
 
             }
         }
     }
 
-    qDebug()<<qrCode.size();
+    return qrCodes;
+}
 
-    for(int i=0;i<qrCode.count();i++)
-    {
-    qDebug()<<"POINT: "<<qrCode.count();
-        cvDrawLine(frame,qrCode.at(i).p1,qrCode.at(i).p2,CV_RGB(30,216,30),2,8,0);
-        cvDrawLine(frame,qrCode.at(i).p1,qrCode.at(i).p3,CV_RGB(30,216,30),2,8,0);
-        cvDrawLine(frame,qrCode.at(i).p2,qrCode.at(i).p3,CV_RGB(30,216,30),2,8,0);
-    }
-    return frame;
+double SimpleFilter::getLenghtLine( CvPoint p1, CvPoint p2 )
+{
+    return sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2));
+}
+
+bool SimpleFilter::isEquilateralTriangle( float side1, float side2, float side3 )
+{
+    return ( abs( side1-side2-side3 ) < side2 * errorAngle && abs( side2 - side3 ) < side2 * errorSide );
 }

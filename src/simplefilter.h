@@ -5,7 +5,7 @@
 
 #include <QVector>
 
-struct vertex
+struct Vertex
 {
     CvPoint p1;
     CvPoint p2;
@@ -20,9 +20,11 @@ class SimpleFilter : public Filter
 {
 public:
     SimpleFilter( Source* source )
-        : Filter(source), er1(0.1), er2(0.2) {}
+        : Filter(source), errorSide(0.1), errorAngle(0.2) {}
 
     virtual IplImage* process( IplImage* frame );
+
+    virtual void processKeyPressed( const char key );
 
 protected:
     QVector<CvSeq*> collectContours( CvSeq* current );
@@ -33,12 +35,18 @@ protected:
 
     CvPoint getCenterPoint(CvSeq* contour);
 
-    inline double getLenghtLine(CvPoint p1, CvPoint p2);
+    QVector<Vertex> findQrCode( const QVector<CvSeq*>& contours );
 
-    IplImage* findQrCode( const QVector<CvSeq*>& contours, IplImage* frame, float errorAngle, float errorSide );
+    void drawDebugInfo( IplImage* frame, QVector<Vertex> qrCodes, QVector<CvSeq*> contours );
+
+    inline double getLenghtLine( CvPoint p1, CvPoint p2 );
+
+    inline bool isEquilateralTriangle( float side1, float side2, float side3 );
 
 private:
-    float er1, er2;
+    float errorSide;
+
+    float errorAngle;
 
 };
 

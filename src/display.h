@@ -16,7 +16,9 @@ protected:
 
 private:
     bool m_isExit;
+
     Window* m_window;
+
     Source* m_source;
 
 };

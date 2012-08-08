@@ -21,4 +21,14 @@ const float QR_MARKER_ERROR = 0.2;
 
 const float MIN_CONTOURS_AREA_RATIO = 0.65;
 
+const int KEY_Q = 113;
+
+const int KEY_A = 97;
+
+const int KEY_W = 119;
+
+const int KEY_S = 115;
+
+const int KEY_ESC = 27;
+
 #endif // CONSTANTS_H
