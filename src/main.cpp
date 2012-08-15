@@ -3,6 +3,14 @@
 #include "display.h"
 #include "camera.h"
 #include "simplefilter.h"
+#include "video.h"
+
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+
+#include "qrpatternfilter.h"
+
+#include "facefilter.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,13 +20,21 @@ int main(int argc, char *argv[])
     Camera* camera = new Camera();
     camera->init();
 
-    SimpleFilter* filter = new SimpleFilter( camera );
+    Video* video = new Video("./resources/test.avi");
+    video->init();
 
-    Display* display = new Display( window, filter );
+    SimpleFilter* filter = new SimpleFilter( video );
+
+    QrPatternFilter* qrPatternFilter = new QrPatternFilter( video );
+
+    Display* display = new Display( window, qrPatternFilter );
 
     display->loop();
 
+    delete qrPatternFilter;
+    delete filter;
     delete camera;
+    delete video;
     delete window;
     delete display;
     return 0;

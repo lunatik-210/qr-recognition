@@ -16,7 +16,36 @@ IplImage* SimpleFilter::process( IplImage* frame )
 
     cvCvtColor( frame, gray, CV_RGB2GRAY );
 
-    cvThreshold( gray, gray, 90, 255, CV_THRESH_BINARY );
+    cvThreshold( gray, gray, 135, 255, CV_THRESH_BINARY );
+
+    //cvLaplace( gray, gray, 1 );
+
+    /*
+    for( int i = 0; i < gray->width; ++i )
+    {
+        for( int j = 0; j < gray->height; ++j )
+        {
+            if( gray->imageData[ i + gray->widthStep * j] < 130 )
+            {
+                gray->imageData[ i + gray->widthStep * j] = 255;
+            }
+            else
+            {
+                gray->imageData[ i + gray->widthStep * j] = 0;
+            }
+        }
+    }
+    */
+
+    //return gray;
+
+    //cvErode( gray, gray, NULL, 1 );
+
+    //if( gray->imageData[ i + gray->widthStep * j] == 0)
+
+    //cvLaplace( gray, gray, 1 );
+
+    //return gray;
 
     CvMemStorage* storage = cvCreateMemStorage( 0 );
 
@@ -72,13 +101,7 @@ void SimpleFilter::drawDebugInfo( IplImage* frame, QVector<Vertex> qrCodes, QVec
     /////////////////////////////////////////////////////
     for( int indx = 0; indx < contours.size(); ++indx )
     {
-        CvRect rect = cvBoundingRect( contours[indx] );
-        CvPoint p1, p2;
-        p1.x = rect.x;
-        p1.y = rect.y;
-        p2.x = rect.x+rect.width;
-        p2.y = rect.y+rect.height;
-        cvRectangle( frame, p1, p2, CV_RGB( 30, 216, 30 ), 2, 8, 0 );
+        cvDrawContours(frame, contours[indx], CV_RGB(255,216,0), CV_RGB(0,0,250), 0, 2, 8);
     }
 
     /////////////////////////////////////////////////////

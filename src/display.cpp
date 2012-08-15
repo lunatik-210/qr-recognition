@@ -14,7 +14,7 @@ void Display::loop()
 {
     while( !this->m_isExit )
     {
-        processKeyPressed( cvWaitKey( 10 ) );
+        processKeyPressed( cvWaitKey( 40 ) );
         this->m_window->blit( m_source->frame() );
     }
 }

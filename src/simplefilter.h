@@ -20,7 +20,7 @@ class SimpleFilter : public Filter
 {
 public:
     SimpleFilter( Source* source )
-        : Filter(source), errorSide(0.1), errorAngle(0.2) {}
+        : Filter(source), errorSide(0.5), errorAngle(0.5) {}
 
     virtual IplImage* process( IplImage* frame );
 
