@@ -47,6 +47,8 @@ IplImage* SimpleFilter::process( IplImage* frame )
 
     //return gray;
 
+    //return gray;
+
     CvMemStorage* storage = cvCreateMemStorage( 0 );
 
     CvSeq* root = NULL;

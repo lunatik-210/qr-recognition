@@ -12,16 +12,13 @@ IplImage* QrPatternFilter::process( IplImage* frame )
 
     cvCvtColor( frame, gray, CV_RGB2GRAY );
 
-    cvThreshold( gray, gray, 130, 255, CV_THRESH_BINARY );
-
-    //cvErode( gray, gray, NULL, 1);
-
-    //return gray;
+    cvThreshold( gray, gray, 135, 255, CV_THRESH_BINARY );
 
     int count = 0;
     int prevPixel = gray->imageData[ 0 ];
 
     QVector<Block> blocks;
+    QVector<Block> qrMarkers;
 
     for( int i = 0; i < gray->width; ++i )
     {
@@ -46,34 +43,50 @@ IplImage* QrPatternFilter::process( IplImage* frame )
                 prevPixel = pixelColor;
             }
         }
+        count = 0;
     }
+
+    bool isQRMarker = true;
 
     for( int i = 0; i<blocks.size()-4; ++i )
     {
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i].count) - 3 ) > 0.5 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i].count) - 3 ) > 0.1 )
         {
-            continue;
+            isQRMarker = false;
         }
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+1].count) - 3 ) > 0.5 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+1].count) - 3 ) > 0.1 )
         {
-            continue;
+            isQRMarker = false;
         }
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+3].count) - 3 ) > 0.5 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+3].count) - 3 ) > 0.1 )
         {
-            continue;
+            isQRMarker = false;
         }
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+4].count) - 3 ) > 0.5 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+4].count) - 3 ) > 0.1 )
         {
+            isQRMarker = false;
+        }
+        if( ( blocks[i+0].color != -1 ) ||
+            ( blocks[i+1].color != 0  ) ||
+            ( blocks[i+2].color != -1 ) ||
+            ( blocks[i+3].color != 0  ) ||
+            ( blocks[i+4].color != -1 )   )
+        {
+            isQRMarker = false;
+        }
+
+        if( isQRMarker == false )
+        {
+            isQRMarker = true;
+            qrMarkers.push_back(blocks[i+2]);
             continue;
         }
 
-        CvPoint p1 = cvPoint(blocks[i+2].x-5, blocks[i+2].y-5);
-        CvPoint p2 = cvPoint(blocks[i+2].x+5, blocks[i+2].y+5);
+        CvPoint p1 = cvPoint(blocks[i+2].x-2, blocks[i+2].y-2);
+        CvPoint p2 = cvPoint(blocks[i+2].x+2, blocks[i+2].y+2);
 
-        cvDrawRect( frame, p1, p2, CV_RGB(30,216,30), 2, 8, 0 );
-
+        cvDrawRect( frame, p1, p2, CV_RGB(0,0,250), 2, 8, 0 );
     }
 
-    //cvThreshold( gray, gray, 130, 255, CV_THRESH_BINARY );
     return frame;
 }

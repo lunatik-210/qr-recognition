@@ -21,6 +21,8 @@ private:
 
     Source* m_source;
 
+    CvVideoWriter *writer;
+
 };
 
 #endif // DISPLAY_H
