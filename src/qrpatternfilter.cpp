@@ -59,19 +59,19 @@ IplImage* QrPatternFilter::process( IplImage* frame )
 
     for( int i = 0; i<blocks.size()-4; ++i )
     {
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i].count) - 6 ) > 0.1 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i].count) - 2 ) > 0.1 )
         {
             isQRMarker = false;
         }
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+1].count) - 3 ) > 0.1 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+1].count) - 2 ) > 0.1 )
         {
             isQRMarker = false;
         }
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+3].count) - 3 ) > 0.1 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+3].count) - 2 ) > 0.1 )
         {
             isQRMarker = false;
         }
-        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+4].count) - 6 ) > 0.1 )
+        if( abs( (float)(blocks[i+2].count) / (float)(blocks[i+4].count) - 2 ) > 0.1 )
         {
             isQRMarker = false;
         }
