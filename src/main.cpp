@@ -23,15 +23,13 @@ int main(int argc, char *argv[])
     Video* video = new Video("./resources/test.avi");
     video->init();
 
-    SimpleFilter* filter = new SimpleFilter( video );
+    //Source* filter = new SimpleFilter( video );
+    Source* filter = new QrPatternFilter( camera );
 
-    QrPatternFilter* qrPatternFilter = new QrPatternFilter( video );
-
-    Display* display = new Display( window, qrPatternFilter );
+    Display* display = new Display( window, filter );
 
     display->loop();
 
-    delete qrPatternFilter;
     delete filter;
     delete camera;
     delete video;
